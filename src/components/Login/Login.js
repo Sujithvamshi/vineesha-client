@@ -45,7 +45,9 @@ function Login ({ setIsLoggedIn }){
           if(response.status === 201){
             setError("")
             setIsLoggedIn(true);
-            localStorage.setItem('employeeData', JSON.stringify(response));
+            setLoginForm({email:signinForm.email,
+            password:signinForm.password})
+            handleLoginSubmit(e);
             navigate('/dashboard');
         } else  {
           setError('!Invalid Credantials')
