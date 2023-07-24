@@ -63,7 +63,7 @@ const Dashboard = () => {
     try {
       await api.patch(`/leave/${id}`,{status:'approved',manager_comment:comment});
       fetchLeaveRequests();
-      setMessage('Leave request removed successfully.');
+      setMessage('Leave request accepted successfully.');
     } catch (error) {
       console.error('Error removing leave request:', error);
       setMessage('Error removing leave request. Please try again.');
@@ -73,7 +73,7 @@ const Dashboard = () => {
     try {
       await api.patch(`/leave/${id}`,{status:'rejected',manager_comment:comment});
       fetchLeaveRequests()
-      setMessage('Leave request removed successfully.');
+      setMessage('Leave request rejected successfully.');
     } catch (error) {
       console.error('Error removing leave request:', error);
       setMessage('Error removing leave request. Please try again.');
@@ -82,12 +82,10 @@ const Dashboard = () => {
   const getEmployeeDetails = async (id) => {
     try {
       const response = await api.get(`/employees/${id}`);
-      console.log(response)
-      return response;
+      setEmployeeData(response.data)
     } catch (error) {
       console.error('Error removing leave request:', error);
       setMessage('Error removing leave request. Please try again.');
-      return []
     }
   };
   return(
@@ -98,13 +96,10 @@ const Dashboard = () => {
           <p>No leave requests submitted.</p>
         ) : (
           <ul className="list-disc pl-6">
-            {leaveRequests.map((request) => (
+            {leaveRequests.map((request) => ( request.status == 'pending' &&
               <li key={request._id} className="mb-4">
                 <div className="bg-white p-4 rounded-md shadow-md">
                   <p>Employee details: </p>
-                  {getEmployeeDetails(request.employee_id).map((details)=>{
-                    return (<>details</>)
-                  })}
                   <p className="font-semibold mb-2">Leave Type: {request.leave_type}</p>
                   <p>Start Date: {request.start_date}</p>
                   <p>End Date: {request.end_date}</p>
