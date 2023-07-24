@@ -9,11 +9,25 @@ const LeaveRequest = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [message, setMessage] = useState('');
   const [employeeData, setEmployeeData] = useState(null);
+  const leaveTypes = [
+    'Privilege Leave (PL) or Earned Leave (EL)',
+    'Casual Leave (CL)',
+    'Sick Leave (SL)',
+    'Maternity Leave (ML)',
+    'Compensatory Off (Comp-off)',
+    'Marriage Leave',
+    'Paternity Leave',
+    'Bereavement Leave',
+    'Loss of Pay (LOP) / Leave Without Pay (LWP)',
+  ];
 
   useEffect(() => {
     retrieveEmployeeData();
-    fetchLeaveRequests();
   }, []);
+
+  useEffect(()=>{
+    fetchLeaveRequests();
+  },[employeeData])
 
   const retrieveEmployeeData = () => {
     const storedEmployeeData = JSON.parse(localStorage.getItem('employeeData')).data.employee;
@@ -23,7 +37,7 @@ const LeaveRequest = () => {
   };
   const fetchLeaveRequests = async () => {
     try {
-      const response = await api.get(`/leave/${employeeData._id}`);
+      const response = await api.post(`/leave/getleaves`,{employee_id: employeeData._id,status:'pending'});
       setLeaveRequests(response.data);
     } catch (error) {
       console.error('Error fetching leave requests:', error);
@@ -61,6 +75,16 @@ const LeaveRequest = () => {
     setEndDate('');
     setReason('');
   };
+  const handleRemoveLeaveRequest = async (id) => {
+    try {
+      await api.delete(`/leave/${id}`);
+      setLeaveRequests(leaveRequests.filter((request) => request._id !== id));
+      setMessage('Leave request removed successfully.');
+    } catch (error) {
+      console.error('Error removing leave request:', error);
+      setMessage('Error removing leave request. Please try again.');
+    }
+  };
 
   return (
     <div>
@@ -69,13 +93,21 @@ const LeaveRequest = () => {
       <form onSubmit={handleSubmit} className="mb-6">
         <div className="mb-2">
           <label className="block font-semibold">Leave Type:</label>
-          <input
-            type="text"
+          <select
             value={leaveType}
             onChange={(e) => setLeaveType(e.target.value)}
             required
             className="w-full rounded-md border border-gray-300 p-2"
-          />
+          >
+            <option value="" disabled>
+              Select Leave Type
+            </option>
+            {leaveTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="mb-2">
           <label className="block font-semibold">Start Date:</label>
@@ -106,7 +138,10 @@ const LeaveRequest = () => {
             className="w-full rounded-md border border-gray-300 p-2"
           />
         </div>
-        <button type="submit" className="bg-blue-600 text-white rounded-md py-2 px-4 hover:bg-blue-700">
+        <button
+          type="submit"
+          className="bg-blue-600 text-white rounded-md py-2 px-4 hover:bg-blue-700 mr-2"
+        >
           Submit Leave Request
         </button>
       </form>
@@ -118,14 +153,21 @@ const LeaveRequest = () => {
           <p>No leave requests submitted.</p>
         ) : (
           <ul className="list-disc pl-6">
-            {leaveRequests.map((request, index) => (
-              <li key={index}>
-                <p>Leave Type: {request.leave_type}</p>
-                <p>Start Date: {request.start_date}</p>
-                <p>End Date: {request.end_date}</p>
-                <p>Reason: {request.reason}</p>
-                <p>Status: {request.status}</p>
-                <hr className="my-2" />
+            {leaveRequests.map((request) => (
+              <li key={request._id} className="mb-4">
+                <div className="bg-white p-4 rounded-md shadow-md">
+                  <p className="font-semibold mb-2">Leave Type: {request.leave_type}</p>
+                  <p>Start Date: {request.start_date}</p>
+                  <p>End Date: {request.end_date}</p>
+                  <p>Reason: {request.reason}</p>
+                  <p>Status: {request.status}</p>
+                  <button
+                    onClick={() => handleRemoveLeaveRequest(request._id)}
+                    className="bg-red-600 text-white rounded-md py-2 px-4 hover:bg-red-700 mt-2"
+                  >
+                    Remove Leave Request
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

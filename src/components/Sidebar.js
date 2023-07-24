@@ -24,6 +24,7 @@ const Sidebar = ({ isLoggedIn }) => {
             ? 'bg-blue-600 text-white'
             : 'text-gray-200 hover:bg-gray-700'
         }`}
+        onClick={()=>{link.label == "Sign Out" && localStorage.clear()}}
       >
         {link.label}
       </Link>

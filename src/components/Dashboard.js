@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import Calendar from 'react-calendar';
 
@@ -10,8 +10,16 @@ const Dashboard = () => {
     { date: new Date(2023, 6, 22), status: 'Approved' },
     // Add more leave data based on your application's records
   ];
-
-  return (
+  const [employeeData, setEmployeeData] = useState(null);
+  useEffect(() => {
+    // Retrieve employee data from localStorage
+    const storedEmployeeData = JSON.parse(localStorage.getItem('employeeData')).data.employee;
+    if (storedEmployeeData) {
+      setEmployeeData(storedEmployeeData);
+    }
+  }, []);
+  if (employeeData.role == 'employee' ){
+    return (
     <div className="flex">
       {/* Main Content */}
       <div className="flex-grow p-6">
@@ -33,6 +41,9 @@ const Dashboard = () => {
       </div>
     </div>
   );
+}else{
+
+}
 };
 
 export default Dashboard;

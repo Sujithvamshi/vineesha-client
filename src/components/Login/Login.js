@@ -15,6 +15,14 @@ function Login ({ setIsLoggedIn }){
       email: '',
       password: ''
     });
+    const [signinForm, setSigninForm] = useState({
+      role:'',
+      name:'',
+      email: '',
+      phone_number:'',
+      department:"",
+      password: ''
+    });
     const [error,setError] = useState("")
     const navigate= useNavigate();
     const handleLoginFormChange = (e) => {
@@ -23,7 +31,31 @@ function Login ({ setIsLoggedIn }){
         [e.target.type]: e.target.value
       });
     };
-  
+    const handleSigninFormChange = (e) => {
+      setSigninForm({
+        ...signinForm,
+        [e.target.name]: e.target.value
+      });
+    };
+
+    const handleSigninSubmit = async (e) => {
+      e.preventDefault();
+      api.post('/employees',signinForm)
+      .then((response) => {
+          if(response.status === 201){
+            setError("")
+            setIsLoggedIn(true);
+            localStorage.setItem('employeeData', JSON.stringify(response));
+            navigate('/dashboard');
+        } else  {
+          setError('!Invalid Credantials')
+        }
+      })
+      .catch((error)=>{
+            console.error('Error:', error);
+            setError('An error occurred while logging in. Please try again later.');
+        });
+    }
     const handleLoginSubmit = async (e) => {
       e.preventDefault();
       api.post('employees/signin',loginForm)
@@ -69,7 +101,7 @@ function Login ({ setIsLoggedIn }){
         </MDBTabsItem>
       </MDBTabs>
       {justifyActive === 'tab1' && <Signin {...{error,justifyActive,setJustifyActive,loginForm,handleLoginFormChange,handleLoginSubmit}}/>}
-      {justifyActive === 'tab2' && <Signup {...{error,justifyActive,setJustifyActive,loginForm,handleLoginFormChange,handleLoginSubmit}}/>}
+      {justifyActive === 'tab2' && <Signup {...{error,justifyActive,setIsLoggedIn,handleSigninFormChange,handleSigninSubmit}}/>}
     </MDBContainer>
   );
 }
