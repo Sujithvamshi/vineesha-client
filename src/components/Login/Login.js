@@ -32,6 +32,7 @@ function Login ({ setIsLoggedIn }){
       });
     };
     const handleSigninFormChange = (e) => {
+      console.log(e)
       setSigninForm({
         ...signinForm,
         [e.target.name]: e.target.value

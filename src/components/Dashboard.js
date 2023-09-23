@@ -35,30 +35,6 @@ const Dashboard = () => {
       console.error('Error fetching leave requests:', error);
     }
   };
-  if (employeeData && employeeData.role == 'employee' ){
-    return (
-    <div className="flex">
-      {/* Main Content */}
-      <div className="flex-grow p-6">
-        <h2 className="text-2xl font-semibold mb-4">Dashboard</h2>
-
-        {/* Calendar */}
-        <div className="shadow rounded-lg mb-6 p-4 bg-white">
-          <h3 className="text-lg font-semibold mb-4">Leave Status Calendar</h3>
-          <Calendar
-            className="rounded-lg border-2 border-gray-200 p-2 text-black text-center"
-            tileClassName={({ date }) => {
-              const leaveItem = leaveData.find((item) => item.date.toDateString() === date.toDateString());
-              return leaveItem ? `bg-${leaveItem.status.toLowerCase()} text-white` : null;
-            }}
-            calendarType="US"
-            showNeighboringMonth={false}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}else if(employeeData && employeeData.role == 'manager'){
   const handleApproveRequest = async (id) => {
     try {
       await api.patch(`/leave/${id}`,{status:'approved',manager_comment:comment});
@@ -88,6 +64,30 @@ const Dashboard = () => {
       setMessage('Error removing leave request. Please try again.');
     }
   };
+  if (employeeData && employeeData.role == 'employee' ){
+    return (
+    <div className="flex">
+      {/* Main Content */}
+      <div className="flex-grow p-6">
+        <h2 className="text-2xl font-semibold mb-4">Dashboard</h2>
+
+        {/* Calendar */}
+        <div className="shadow rounded-lg mb-6 p-4 bg-white">
+          <h3 className="text-lg font-semibold mb-4">Leave Status Calendar</h3>
+          <Calendar
+            className="rounded-lg border-2 border-gray-200 p-2 text-black text-center"
+            tileClassName={({ date }) => {
+              const leaveItem = leaveData.find((item) => item.date.toDateString() === date.toDateString());
+              return leaveItem ? `bg-${leaveItem.status.toLowerCase()} text-white` : null;
+            }}
+            calendarType="US"
+            showNeighboringMonth={false}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}else if(employeeData && employeeData.role == 'manager'){
   return(
     <div>
     <div>
@@ -99,7 +99,7 @@ const Dashboard = () => {
             {leaveRequests.map((request) => ( request.status == 'pending' &&
               <li key={request._id} className="mb-4">
                 <div className="bg-white p-4 rounded-md shadow-md">
-                  <p>Employee details: </p>
+                  <p>Employee details: {request.employee_id.name} ({request.employee_id.department})</p>
                   <p className="font-semibold mb-2">Leave Type: {request.leave_type}</p>
                   <p>Start Date: {request.start_date}</p>
                   <p>End Date: {request.end_date}</p>
